@@ -49,6 +49,43 @@ Pixelscape emphasizes simplicity and functionality while maintaining a professio
 ## Credits
 Powered by Unsplash API, providing access to millions of high-quality images from professional photographers worldwide.
 
+## Deployment Guide (Render)
+
+### Prerequisites
+- A Render account (https://render.com)
+- Your project pushed to a GitHub repository
+
+### Deployment Steps
+
+1. **Build Configuration**
+   Create a `render.yaml` file in your project root:
+
+2. **Environment Setup**
+   - Go to Render Dashboard
+   - Click "New +"
+   - Select "Static Site"
+   - Connect your GitHub repository
+   - Configure the following settings:
+     - Name: `pixelscape` (or your preferred name)
+     - Build Command: `npm install && npm run build`
+     - Publish Directory: `build`
+
+3. **Environment Variables**
+   Add the following environment variables in Render:
+   - `REACT_APP_UNSPLASH_ACCESS_KEY`
+
+4. **Deploy**
+   - Click "Create Static Site"
+   - Render will automatically build and deploy your site
+
+### Auto Deployment
+Render automatically deploys when you push to your repository's main branch.
+
+### Custom Domain (Optional)
+1. Go to your site's settings in Render
+2. Navigate to "Custom Domains"
+3. Add your domain and follow the DNS configuration instructions
+
 ---
 
 *Pixelscape - Where Creativity Meets Quality*
