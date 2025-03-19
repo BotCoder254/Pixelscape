@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaGithub, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 
 const Footer = () => {
+  const { user } = useAuth();
+
   return (
     <footer className="bg-white text-text-primary py-12 shadow-lg">
       <div className="container mx-auto px-4">
@@ -27,6 +30,26 @@ const Footer = () => {
                   Home
                 </Link>
               </li>
+              {!user ? (
+                <>
+                  <li>
+                    <Link to="/login" className="text-text-secondary hover:text-accent transition-colors">
+                      Sign In
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/signup" className="text-text-secondary hover:text-accent transition-colors">
+                      Sign Up
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <Link to="/gallery" className="text-text-secondary hover:text-accent transition-colors">
+                    My Collection
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
           
@@ -41,6 +64,11 @@ const Footer = () => {
               <li>
                 <a href="#" className="text-text-secondary hover:text-accent transition-colors">
                   Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-text-secondary hover:text-accent transition-colors">
+                  License
                 </a>
               </li>
             </ul>
