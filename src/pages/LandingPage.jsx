@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaSearch, FaChevronDown, FaCamera, FaImage, 
   FaDownload, FaGlobe, FaRegCompass, FaPalette,
-  FaRegClock, FaMountain, FaCity, FaPortrait
+  FaRegClock, FaMountain, FaCity, FaPortrait,
+  FaUser, FaSignInAlt, FaUserPlus
 } from 'react-icons/fa';
 import * as UnsplashService from '../services/unsplash';
+import { useAuth } from '../contexts/AuthContext';
 
 const categories = [
   { name: 'Nature', icon: <FaMountain />, color: 'from-green-500 to-emerald-500' },
@@ -22,6 +24,18 @@ const LandingPage = () => {
   const [backgroundImages, setBackgroundImages] = useState([]);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const loadBackgroundImages = async () => {
@@ -58,12 +72,96 @@ const LandingPage = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/gallery?search=${encodeURIComponent(searchQuery)}`;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+      navigate(`/gallery?search=${encodeURIComponent(searchQuery)}`);
     }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  };
+
+  const handleCategoryClick = (category) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    navigate(`/gallery?category=${category.toLowerCase()}`);
   };
 
   return (
     <div className="min-h-screen relative">
+      {/* Navigation Bar */}
+      <motion.nav
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+        }`}
+      >
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center space-x-2">
+              <motion.span 
+                className="text-2xl font-bold text-white"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Pixelscape
+              </motion.span>
+            </Link>
+
+            <div className="flex items-center space-x-6">
+              {user ? (
+                <>
+                  <Link 
+                    to="/gallery" 
+                    className="text-white/90 hover:text-white transition-colors flex items-center space-x-2"
+                  >
+                    <FaImage className="text-lg" />
+                    <span>Gallery</span>
+                  </Link>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleLogout}
+                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full flex items-center space-x-2 transition-colors"
+                  >
+                    <FaUser className="text-lg" />
+                    <span>Logout</span>
+                  </motion.button>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="text-white/90 hover:text-white transition-colors flex items-center space-x-2"
+                  >
+                    <FaSignInAlt className="text-lg" />
+                    <span>Sign In</span>
+                  </Link>
+                  <Link 
+                    to="/signup" 
+                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full flex items-center space-x-2 transition-colors"
+                  >
+                    <FaUserPlus className="text-lg" />
+                    <span>Sign Up</span>
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.nav>
+
       {/* Hero Section */}
       <div className="min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image */}
@@ -99,7 +197,7 @@ const LandingPage = () => {
         </motion.div>
 
         {/* Content */}
-        <div className="relative z-10 text-center px-4 w-full max-w-6xl mx-auto">
+        <div className="relative z-10 text-center px-4 w-full max-w-6xl mx-auto mt-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -148,21 +246,20 @@ const LandingPage = () => {
             {/* Categories */}
             <div className="flex flex-wrap justify-center gap-3 md:gap-4 px-4 mt-6 md:mt-8">
               {categories.map((category) => (
-                <Link
+                <motion.button
                   key={category.name}
-                  to={`/gallery?category=${category.name.toLowerCase()}`}
+                  onClick={() => handleCategoryClick(category.name)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="bg-white/10 backdrop-blur-md px-4 py-2 md:px-6 md:py-3 rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 group"
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center space-x-2 text-white"
-                  >
+                  <div className="flex items-center space-x-2 text-white">
                     <span className="text-lg md:text-xl group-hover:text-accent transition-colors">
                       {category.icon}
                     </span>
                     <span className="text-sm md:text-base">{category.name}</span>
-                  </motion.div>
-                </Link>
+                  </div>
+                </motion.button>
               ))}
             </div>
           </motion.div>
