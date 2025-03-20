@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   HiHome, 
   HiPhotograph, 
   HiMenuAlt2, 
   HiX,
-  HiChevronRight 
+  HiChevronRight,
+  HiLogout 
 } from 'react-icons/hi';
+import { useAuth } from '../contexts/AuthContext';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  };
 
   const navItems = [
     { title: 'Home', icon: <HiHome />, path: '/' },
@@ -96,6 +109,16 @@ const Sidebar = () => {
               </Link>
             ))}
           </nav>
+
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="flex items-center px-4 py-3 mb-2 rounded-lg transition-all duration-300 text-text-secondary hover:bg-secondary hover:text-text-primary"
+            >
+              <span className="text-xl"><HiLogout /></span>
+              <span className="ml-4">Logout</span>
+            </button>
+          )}
         </motion.div>
       </motion.div>
 

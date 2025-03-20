@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as UnsplashService from '../services/unsplash';
-import { HiDownload, HiSearch } from 'react-icons/hi';
+import { HiDownload, HiSearch, HiLogout } from 'react-icons/hi';
 import { useInView } from 'react-intersection-observer';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import ImageModal from '../components/ImageModal';
+import { useAuth } from '../contexts/AuthContext';
 
 const Gallery = () => {
   const [images, setImages] = useState([]);
@@ -14,6 +16,17 @@ const Gallery = () => {
   const [ref, inView] = useInView();
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState(null);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  };
 
   const fetchImages = async (pageNum) => {
     setLoading(true);
@@ -75,12 +88,25 @@ const Gallery = () => {
 
   return (
     <div className="p-4 md:p-6 bg-gradient-to-br from-primary to-secondary min-h-screen">
-      {/* Search Section */}
+      {/* Header with Search and Logout */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto mb-8 md:mb-12"
+        className="max-w-4xl mx-auto mb-8 md:mb-12 space-y-4"
       >
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-white">Gallery</h1>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleLogout}
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-white/20 text-white transition-colors"
+          >
+            <HiLogout className="text-lg" />
+            <span>Logout</span>
+          </motion.button>
+        </div>
+
         <div className="relative">
           <HiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
           <input
