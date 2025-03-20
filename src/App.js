@@ -26,6 +26,7 @@ const ProtectedRoute = ({ children }) => {
 
 const AppContent = () => {
   const location = useLocation();
+  const { user } = useAuth();
   const isAuthPage = ['/login', '/signup', '/reset-password'].includes(location.pathname);
   const isLandingPage = location.pathname === '/';
 
@@ -44,13 +45,13 @@ const AppContent = () => {
 
   return (
     <div className="bg-primary min-h-screen text-text-primary">
-      {/* Show Sidebar only on desktop and when not on landing page */}
+      {/* Show Sidebar only when user is authenticated and not on landing page */}
       <div className="hidden md:block">
-        {!isLandingPage && <Sidebar />}
+        {!isLandingPage && user && <Sidebar />}
       </div>
 
       {/* Main Content */}
-      <main className={`${!isLandingPage ? "md:ml-[240px]" : ""} pb-16 md:pb-0`}>
+      <main className={`${!isLandingPage && user ? "md:ml-[240px]" : ""} pb-16 md:pb-0`}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route
@@ -65,11 +66,11 @@ const AppContent = () => {
         </Routes>
       </main>
 
-      {/* Show Mobile Navigation when not on landing page */}
-      {!isLandingPage && <MobileNav />}
+      {/* Show Mobile Navigation when user is authenticated and not on landing page */}
+      {!isLandingPage && user && <MobileNav />}
 
-      {/* Show Footer only on landing page */}
-      {isLandingPage && <Footer />}
+      {/* Show Footer only on landing page when not authenticated */}
+      {isLandingPage && !user && <Footer />}
     </div>
   );
 };
